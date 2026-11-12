@@ -1,5 +1,4 @@
-
-name: Build and Push API
+name: Build Sitepins API
 
 on:
   push:
