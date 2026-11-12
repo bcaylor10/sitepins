@@ -8,7 +8,7 @@ out/
 *.tsbuildinfo
 
 # env
-.env
+app/.env
 .env.*
 !.env.example
 

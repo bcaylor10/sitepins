@@ -24,6 +24,8 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
+    expose:
+      - "4000"
     restart: unless-stopped
     environment:
       MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/sitepins?replicaSet=rs0}
@@ -79,6 +81,8 @@ services:
         NEXT_PUBLIC_COMMUNITY_URL: ${NEXT_PUBLIC_COMMUNITY_URL:-https://discord.gg/KrpvHfqcNA}
         NEXT_PUBLIC_DOCS_URL: ${NEXT_PUBLIC_DOCS_URL:-https://docs.sitepins.com}
         NEXT_PUBLIC_SOURCE_URL: ${NEXT_PUBLIC_SOURCE_URL:-https://github.com/sitepins/sitepins}
+    expose:
+      - "3000"
     restart: unless-stopped
     environment:
       # Server-side secrets: runtime only, never build args.
