@@ -33,6 +33,7 @@ jobs:
           push: true
           tags: ghcr.io/bcaylor10/sitepins-web:latest
           build-args: |
+            NEXT_PUBLIC_BUCKET_URL=https://sitepens-assets-caylordigital-597509597793-us-east-2-an.s3.us-east-2.amazonaws.com
             NEXT_PUBLIC_BACKEND_URL=https://api-sitepins.caylordigital.com/api/v1
             NEXT_PUBLIC_HP_WS_URL=wss://api-sitepins.caylordigital.com/api/v1/editor/collab
             NEXT_PUBLIC_BRAND_NAME=Sitepins
