@@ -1,18 +1,3 @@
-# One-command local/self-hosted stack: MongoDB + API + web.
-#
-#   cp api/.env.example api/.env      # fill in secrets + media bucket
-#   cp app/.env.example app/.env
-#   docker compose up --build
-#
-# Web:  http://localhost:3000
-# API:  http://localhost:4000  (health: /healthz)
-#
-# Media storage (S3-compatible) still has to be configured in api/.env —
-# see the README. MongoDB runs in the `mongo` service below.
-#
-# NEXT_PUBLIC_* values are baked into the web image at build time, and compose
-# reads them from the shell or a root-level .env file (not app/.env).
-
 services:
   mongo:
     image: mongo:7
@@ -21,8 +6,6 @@ services:
     restart: unless-stopped
     volumes:
       - mongo-data:/data/db
-    ports:
-      - "27017:27017"
     healthcheck:
       # Initiates the set on first run; healthy once this node is primary.
       test:
@@ -42,30 +25,44 @@ services:
       context: .
       dockerfile: api/Dockerfile
     restart: unless-stopped
-    env_file:
-      - api/.env
     environment:
-      # Point the API at the compose Mongo unless api/.env overrides it.
       MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/sitepins?replicaSet=rs0}
       NODE_ENV: production
       PORT: "4000"
+      BASE_URL: ${BASE_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TOKEN_EXPIRE: ${JWT_TOKEN_EXPIRE:-7d}
+      SANDBOX_ENCRYPTION_KEY: ${SANDBOX_ENCRYPTION_KEY}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-false}
+      REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-true}
     depends_on:
       mongo:
         condition: service_healthy
-    ports:
-      - "4000:4000"
 
   web:
     build:
       context: .
       dockerfile: app/Dockerfile
       args:
+        # Public values only: these are inlined into the client bundle at build time.
         NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000/api/v1}
         NEXT_PUBLIC_HP_WS_URL: ${NEXT_PUBLIC_HP_WS_URL:-ws://localhost:4000/api/v1/editor/collab}
         NEXT_PUBLIC_BUCKET_URL: ${NEXT_PUBLIC_BUCKET_URL:-}
         NEXT_PUBLIC_BRAND_NAME: ${NEXT_PUBLIC_BRAND_NAME:-Sitepins}
         NEXT_PUBLIC_BRAND_URL: ${NEXT_PUBLIC_BRAND_URL:-https://sitepins.com}
         NEXT_PUBLIC_GIT_APP_NAME: ${NEXT_PUBLIC_GIT_APP_NAME:-}
+        NEXT_PUBLIC_GITHUB_APP_NAME: ${NEXT_PUBLIC_GITHUB_APP_NAME:-}
         NEXT_PUBLIC_GITLAB_CLIENT_ID: ${NEXT_PUBLIC_GITLAB_CLIENT_ID:-}
         NEXT_PUBLIC_BRAND_SLUG: ${NEXT_PUBLIC_BRAND_SLUG:-sitepins}
         NEXT_PUBLIC_BRAND_LOGO: ${NEXT_PUBLIC_BRAND_LOGO:-/images/logo.svg}
@@ -83,12 +80,15 @@ services:
         NEXT_PUBLIC_DOCS_URL: ${NEXT_PUBLIC_DOCS_URL:-https://docs.sitepins.com}
         NEXT_PUBLIC_SOURCE_URL: ${NEXT_PUBLIC_SOURCE_URL:-https://github.com/sitepins/sitepins}
     restart: unless-stopped
-    env_file:
-      - app/.env
+    environment:
+      # Server-side secrets: runtime only, never build args.
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_APP_CLIENT_ID: ${GITHUB_APP_CLIENT_ID}
+      GITHUB_APP_CLIENT_SECRET: ${GITHUB_APP_CLIENT_SECRET}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
     depends_on:
       - api
-    ports:
-      - "3000:3000"
 
 volumes:
   mongo-data:
