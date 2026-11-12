@@ -46,6 +46,11 @@ services:
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-false}
       REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-true}
+      BRAND_NAME: ${BRAND_NAME}
+      BRAND_URL: ${BRAND_URL}
+      BRAND_SLUG: ${BRAND_SLUG}
+      BRAND_SUPPORT_URL: ${BRAND_SUPPORT_URL}
+      GIT_APP_NAME: ${GIT_APP_NAME}
     depends_on:
       mongo:
         condition: service_healthy
