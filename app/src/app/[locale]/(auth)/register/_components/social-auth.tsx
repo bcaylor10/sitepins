@@ -18,33 +18,6 @@ export function SocialAuth({
 }) {
   const router = useRouter();
 
-  const loginWithGoogle = async () => {
-    try {
-      await authClient.signIn.social(
-        {
-          provider: "google",
-          callbackURL: window.location.origin + redirect_url,
-          errorCallbackURL: window.location.origin + "/login",
-        },
-        {
-          onSuccess: (context) => {
-            const redirectUrl = context?.data?.url;
-            if (redirectUrl) {
-              window.location.href = redirectUrl;
-              return;
-            }
-            router.refresh();
-          },
-          onError: (error) => {
-            logger.error("Google sign-in error:", error);
-          },
-        },
-      );
-    } catch (error) {
-      logger.error("Google sign-in failed:", error);
-    }
-  };
-
   const loginWithGithub = async () => {
     try {
       await authClient.signIn.social(
@@ -87,15 +60,6 @@ export function SocialAuth({
         >
           <SiGithub className="size-5" />
           <span className="ms-2">{tAuthSocial("github")}</span>
-        </Button>
-        <Button
-          type="button"
-          variant={"outline"}
-          className="border-border w-full border"
-          onClick={loginWithGoogle}
-        >
-          <SiGoogle className="size-5" />
-          <span className="ms-2">{tAuthSocial("google")}</span>
         </Button>
       </div>
 
